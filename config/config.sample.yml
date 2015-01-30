@@ -1,0 +1,21 @@
+fetch:
+  lookback: 30 # Number of days back in time from the start date to fetch for
+channels:
+  - name: ADD HERE
+    type: singular # Only Singular supported currently
+    api_key: ADD HERE
+s3:
+  access_key_id: ADD HERE
+  secret_access_key: ADD HERE
+  region: ADD HERE # Region bucket lives in
+  bucket: ADD HERE # Must be s3:// not s3n:// for Redshift
+  folder_path: ADD HERE
+targets:
+  - name: ADD HERE
+    type: redshift # Only Redshift support currently
+    host: ADD HERE # The endpoint as shown in the Redshift console
+    database: ADD HERE # Name of database
+    port: 5439 # Default Redshift port
+    table: ADD HERE # TODO: move this out
+    username: ADD HERE
+    password: ADD HERE
