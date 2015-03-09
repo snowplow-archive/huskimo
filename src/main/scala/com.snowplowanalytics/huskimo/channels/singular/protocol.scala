@@ -43,6 +43,8 @@ object ApiProtocol extends Json4sSupport {
 
   type CampaignStatisticsResult = List[CampaignStatistics]
 
+  type CreativeStatisticsResult = List[CreativeStatistics]
+
   case class ErrorResult(
     error: String
   )
@@ -102,6 +104,71 @@ case class CampaignStatistics(
         CU.tsvify(cost),
         CU.tsvify(revenue),
         lm)
+    }
+  }
+}
+
+case class CreativeStatistics(
+  ad_network:          String,
+  creative_name:       String,
+  creative_text:       String,
+  image:               String,
+  image_hash:          String,
+  width:               String,
+  height:              String,
+  is_video:            Boolean,
+  campaign_name:       String,
+  campaign_type:       String,
+  campaign_url:        String,
+  app_id:              String,
+  campaign_network_id: Option[String],
+  date:                String, // Will be converted before loading into Redshift
+  impressions:         Option[Integer],
+  clicks:              Option[Integer],
+  installs:            Option[Integer],
+  cost:                Option[Double],
+  modified_at:         String // Will be converted before loading into Redshift
+  ) extends Tsvable {
+
+  /**
+   * A helper to convert a CampaignStatistics to a
+   * List of tab-separated values, ready
+   * for COPYing into Redshift.
+   *
+   * @param channelName The business name for this channel
+   * @param whenRetrieved When the retrieval was performed
+   *
+   * @return a Validation boxing all fields in the entity as a well-ordered
+   *         List of tab-separated value Strings on Success, or a NEL of
+   *         error Strings on Failure
+   */
+  def toTsv(channelName: String, whenRetrieved: DateTime): ValidationNel[String, Array[String]] = {
+
+    val reportingDate = CU.rawToRedshift(date, DTF.YyyyMmDd)
+    val modifiedAt = CU.rawToRedshift(modified_at, DTF.Iso8601)
+
+    (reportingDate.toValidationNel |@| modifiedAt.toValidationNel) { (rd, ma) =>
+      Array(
+        channelName,
+        CU.dateTimeToRedshift(whenRetrieved),
+        ad_network,
+        creative_name,
+        creative_text,
+        image,
+        width,
+        height,
+        is_video.toString,
+        campaign_name,
+        campaign_type,
+        campaign_url,
+        app_id,
+        CU.tsvify(campaign_network_id),
+        rd,
+        CU.tsvify(impressions),
+        CU.tsvify(clicks),
+        CU.tsvify(installs),
+        CU.tsvify(cost),
+        ma)
     }
   }
 }

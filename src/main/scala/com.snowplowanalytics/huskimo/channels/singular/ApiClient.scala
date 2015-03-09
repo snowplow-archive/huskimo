@@ -52,6 +52,7 @@ import org.json4s.native.JsonMethods._
 // Spray
 import spray.http._
 import spray.httpx.{UnsuccessfulResponseException => UrUnsuccessfulResponseException}
+import spray.httpx.unmarshalling.FromResponseUnmarshaller
 import spray.util._
 import spray.client.pipelining._
 import spray.can.Http
@@ -119,19 +120,20 @@ object ApiClient {
   /**
    * Fetch a page of campaign statistics from the Singular API.
    *
-   * @param config The access details and security
-   *        credentials for the Singular API
+   * @param apiKey The API key for Singular
+   * @param resourceSlug The slug of the resource
+   *        to request from Singular
    * @param endDate The last day to retrieve
    *        campaign statistics for
    * @return a Validation containing either a Failure
    *         String or a List (possibly empty) of
    *         CampaignStatistics on Success.
    */
-  def getCampaignStatistics(config: AppConfig.Channel, date: DateTime): ValidatedCampaignStatistics = {
+  def getStatistics[T: FromResponseUnmarshaller](apiKey: String, resourceSlug: String, date: DateTime): Validated[T] = {
 
-    log.info(s"Fetching campaign data")
+    log.info(s"Fetching ${resourceSlug} data")
 
-    val path = buildRequestPath(config.api_key, date)
+    val path = buildRequestPath(apiKey, resourceSlug, date)
 
     val connectedSendReceive = for {
     Http.HostConnectorInfo(connector, _) <-
@@ -141,7 +143,7 @@ object ApiClient {
     val pipeline = for (sendRecv <- connectedSendReceive) yield
       addHeader("Accept", "application/json") ~>
       sendRecv                                ~>
-      unmarshal[CampaignStatisticsResult]
+      unmarshal[T]
 
     val req = Get(path)
     val future = pipeline.flatMap(_(req))
@@ -149,7 +151,7 @@ object ApiClient {
 
     result match {
       case scala.util.Success(stats)                            => stats.success
-      case scala.util.Failure(UnsuccessfulResponseException(r)) => parseFailure(r)
+      case scala.util.Failure(UnsuccessfulResponseException(r)) => parseFailure[T](r)
       case scala.util.Failure(err)                              => err.getMessage.fail
     }
   }
@@ -166,13 +168,15 @@ object ApiClient {
    * Builds our API request path.
    *
    * @param apiKey The API key for Singular
+   * @param resourceSlug The slug of the resource
+   *        to request from Singular
    * @param date The date to retrieve campaign
    *        data for
    * @return our API request path
    */
-  private[singular] def buildRequestPath(apiKey: String, date: DateTime): String = {
+  private[singular] def buildRequestPath(apiKey: String, resourceSlug: String, date: DateTime): String = {
     val dt = DateTimeFormatters.YyyyMmDd.print(date)
-    s"/api/${apiKey}/adv/stats/${dt}/${dt}"
+    s"/api/${apiKey}/adv/${resourceSlug}/${dt}/${dt}"
   }
 
   /**
@@ -183,7 +187,7 @@ object ApiClient {
    * @return a Validation boxing either an empty List
    *         on Success or a Failure String
    */
-  private[singular] def parseFailure(response: HttpResponse): ValidatedCampaignStatistics = {
+  private[singular] def parseFailure[T: FromResponseUnmarshaller](response: HttpResponse): Validated[T] = {
     
     try {
       val json = parse(response.entity.asString)

@@ -40,7 +40,7 @@ import scalaz._
 import Scalaz._
 
 // This project
-import channels.singular.CampaignStatistics
+import channels.Tsvable
 import utils.{DateTimeFormatters => DTF}
 
 /**
@@ -50,7 +50,6 @@ import utils.{DateTimeFormatters => DTF}
 object FileTasks {
 
   private object TempFile {
-    val prefix = "singular-campaigns"
     val suffix = ".tsv.gz"
   }
 
@@ -87,11 +86,17 @@ object FileTasks {
    * Generate the temporary file path to hold
    * our TSV-format campaign data.
    *
+   * @param channelIndex To prevent clashes
+   *        between separate marketing channels
+   * @param resource What type of resource are
+   *        we storing in our file
+   * @param date A timestamp for our filename
+   * 
    * @return the temporary file
    */
-  def getTemporaryFile(channelIndex: Int, date: DateTime): File = {
+  def getTemporaryFile(channelIndex: Int, resource: String, date: DateTime): File = {
     val dt = DTF.YyyyMmDdCompact.print(date)
-    val temp = File.createTempFile(s"${TempFile.prefix}-${channelIndex}-${dt}-", TempFile.suffix)
+    val temp = File.createTempFile(s"${resource}-${channelIndex}-${dt}-", TempFile.suffix)
     System.out.println(s"Temporary file is ${temp}")
     temp.deleteOnExit
     temp.getCanonicalFile
@@ -103,12 +108,12 @@ object FileTasks {
    *
    * @param file The temporary file to write the
    *        the events to.
-   * @param CampaignStatistics (Possibly empty) List of
-   *        events to write out to the file.
+   * @param records (Possibly empty) List of
+   *        records which can be converted to a TSV.
    * @param channelName The business name for this channel
    * @param whenRetrieved When the retrieval was performed
    */
-  def writeCampaignStatistics(file: File, CampaignStatistics: List[CampaignStatistics],
+  def writeFile(file: File, records: List[Tsvable],
     channelName: String, whenRetrieved: DateTime) {
 
     val osw = {
@@ -118,7 +123,7 @@ object FileTasks {
     }
 
     val writer = new CSVWriter(osw, AppConfig.FieldDelimiter.AsChar, CSVWriter.NO_QUOTE_CHARACTER)
-    for (event <- CampaignStatistics) {
+    for (event <- records) {
       // TODO: send all errors to a stream instead of panicking
       event.toTsv(channelName, whenRetrieved) match {
         case Failure(nel) => throw new Exception("Error(s) converting record to TSV: \n" + nel.toList.mkString("\n"))

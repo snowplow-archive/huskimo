@@ -41,16 +41,18 @@ object RedshiftTasks {
    * statement.
    *
    * @param config The configuration for Amazon S3
-   * @param ordersTable Table name (optionally starting
-   *        with schema) containing the campaign data
+   * @param resource What type of resource are
+   *        we storing in our file
+   * @param tableName The name of the table (optionally starting
+   *        with schema) containing the data to load
    */
-  def loadCampaigns(config: AppConfig.S3, campaignsTable: String) {
+  def loadTable(config: AppConfig.S3, resource: String, tableName: String) {
     
-    val path = buildS3Path(config.bucket, config.folder_path)
+    val path = buildS3Path(config.bucket, resource, config.folder_path)
     val creds = buildCredentialsString(config.access_key_id, config.secret_access_key)
 
     DB autoCommit { implicit session =>
-      SQL(s"""|COPY ${campaignsTable} FROM '${path}' 
+      SQL(s"""|COPY ${tableName} FROM '${path}' 
           |CREDENTIALS AS '${creds}' 
           |GZIP 
           |DELIMITER AS '${AppConfig.FieldDelimiter.AsString}' 
@@ -70,8 +72,8 @@ object RedshiftTasks {
    * @param folderPath The path to delete from
    * @return the path to COPY into S3
    */
-  def buildS3Path(bucket: String, folderPath: String): String =
-    s"s3://${bucket}/${folderPath}"
+  def buildS3Path(bucket: String, resource: String, folderPath: String): String =
+    s"s3://${bucket}/${folderPath}/${resource}-"
 
   /**
    * Builds a COPY-compatible credentials string.
