@@ -29,7 +29,7 @@ CREATE TABLE huskimo.singular_campaigns (
   ad_network          varchar(512) not null encode text32k,
   campaign_name       varchar(512) not null encode text32k,
   campaign_type       varchar(512) not null encode text32k,
-  campaign_url        varchar(512),
+  campaign_url        varchar(8192),
   app_id              varchar(512) encode runlength,
   campaign_network_id varchar(512) encode runlength,
   country             varchar(2) encode text255,
