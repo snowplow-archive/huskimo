@@ -26,8 +26,8 @@ Assuming Java 7 or higher installed:
 Assuming git, **[Vagrant] [vagrant-install]** and **[VirtualBox] [virtualbox-install]** installed:
 
 ```bash
- host> git clone https://github.com/snowplow/scala-forex
- host> cd scala-forex
+ host> git clone https://github.com/snowplow/huskimo
+ host> cd huskimo
  host> vagrant up && vagrant ssh
 guest> cd /vagrant
 guest> sbt compile
