@@ -41,8 +41,8 @@ object Singular {
 
   private object Resources {
     private val tablePrefix = "huskimo.singular_"
-    val campaigns = Resource("stats", "campaigns", "${tablePrefix}campaigns")
-    val creatives = Resource("creative_stats", "creatives", "${tablePrefix}creatives")
+    val campaigns = Resource("stats", "campaigns", s"${tablePrefix}campaigns")
+    val creatives = Resource("creative_stats", "creatives", s"${tablePrefix}creatives")
   }
 
   /**
@@ -89,14 +89,14 @@ object Singular {
       for (daysAgo <- 0 to config.fetch.lookback) {
         val lookupDate = endDate.minusDays(daysAgo)
         // Lookup the resources and write to a temporary file
-        fetchAndWrite[CampaignStatisticsResult](config, chn, idx, Resources.campaigns, lookupDate)
+        // fetchAndWrite[CampaignStatisticsResult](config, chn, idx, Resources.campaigns, lookupDate)
         fetchAndWrite[CreativeStatisticsResult](config, chn, idx, Resources.creatives, lookupDate)
       }
 
       // TODO: this should be in parallel
       for (tgt <- config.targets) {
         RedshiftTasks.initializeConnection(tgt)
-        RedshiftTasks.loadTable(config.s3, Resources.campaigns.filePrefix, Resources.campaigns.tableName)
+        // RedshiftTasks.loadTable(config.s3, Resources.campaigns.filePrefix, Resources.campaigns.tableName)
         RedshiftTasks.loadTable(config.s3, Resources.creatives.filePrefix, Resources.creatives.tableName)
       }
     }

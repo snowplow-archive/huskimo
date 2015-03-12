@@ -54,7 +54,36 @@ object ConversionUtils {
   /**
    * Makes any type TSV-safe. Be careful with this.
    */
-  def tsvify(x: Option[Any]) = x.map(_.toString).getOrElse("")
+  def tsvify(value: Any): String = tsvify(Option(value))
+
+  /**
+   * Makes any Option-boxed type TSV-safe. Be careful with this.
+   */
+  def tsvify(value: Option[Any]): String = (for {
+    raw <- value
+    fix <- fixTabsNewlines(raw.toString)
+  } yield fix).getOrElse("")
+
+  /**
+   * Replaces tabs with four spaces and removes
+   * newlines altogether.
+   *
+   * Useful to prepare user-created strings for
+   * fragile storage formats like TSV.
+   *
+   * @param str The String to fix
+
+   * @return The String with tabs and newlines fixed.
+   */
+  private def fixTabsNewlines(str: String): Option[String] = {
+    val f = for {
+      s <- Option(str)
+      r = s.replaceAll("\\t", "    ")
+           .replaceAll("[\n\r]", " ")
+           .replaceAll("\\p{Cntrl}", "") // Any other control character
+    } yield r
+    if (f == Some("")) None else f
+  }
 
   /**
    * Converts a dateTime to Redshift format.

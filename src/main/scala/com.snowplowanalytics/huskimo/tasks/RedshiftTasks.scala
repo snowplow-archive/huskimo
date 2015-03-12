@@ -59,7 +59,7 @@ object RedshiftTasks {
           |MAXERROR AS 1 
           |REGION AS '${config.region}' 
           |EMPTYASNULL 
-          |ACCEPTINVCHARS;""".stripMargin.replaceAll("[\n\r]",""))
+          |ACCEPTINVCHARS;""".stripMargin.replaceAll("[\n\r]", " "))
         .execute
         .apply()
     }
