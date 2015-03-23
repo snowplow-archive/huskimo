@@ -1,4 +1,4 @@
-Version 0.2.0 (2015-03-12)
+Version 0.2.0 (2015-03-23)
 --------------------------
 Added support for Singular creative stats (#5)
 Widened campaign_url for singular_campaigns to 8192 (#6)
