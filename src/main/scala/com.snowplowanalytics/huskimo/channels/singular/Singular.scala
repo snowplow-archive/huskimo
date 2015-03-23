@@ -89,7 +89,7 @@ object Singular {
       for (daysAgo <- 0 to config.fetch.lookback) {
         val lookupDate = endDate.minusDays(daysAgo)
         // Lookup the resources and write to a temporary file
-        // fetchAndWrite[CampaignStatisticsResult](config, chn, idx, Resources.campaigns, lookupDate)
+        fetchAndWrite[CampaignStatisticsResult](config, chn, idx, Resources.campaigns, lookupDate)
         fetchAndWrite[CreativeStatisticsResult](config, chn, idx, Resources.creatives, lookupDate)
       }
 
