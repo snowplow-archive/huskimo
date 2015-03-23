@@ -9,18 +9,15 @@
 -- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 --
--- Version:     0.2.0
+-- Version:     0.1.0 to 0.2.0
 -- URL:         -
 --
 -- Authors:     Alex Dean
 -- Copyright:   Copyright (c) 2015 Snowplow Analytics Ltd
 -- License:     Apache License Version 2.0
 
- -- Create the schema
-CREATE SCHEMA huskimo;
-
--- Create huskimo user
-CREATE USER huskimo PASSWORD 'xxx';
+-- First rename the existing table (don't delete it)
+ALTER TABLE huskimo.singular_campaigns RENAME TO singular_campaigns_010;
 
 -- Create table for Singular campaigns
 CREATE TABLE huskimo.singular_campaigns (
@@ -74,6 +71,28 @@ CREATE TABLE huskimo.singular_creatives (
 DISTSTYLE KEY
 DISTKEY (ad_network)
 SORTKEY (reporting_date, when_retrieved);
+
+-- Now copy into new from singular_campaigns_010
+INSERT INTO huskimo.singular_campaigns
+  SELECT
+  channel_name,
+  when_retrieved,
+  ad_network,
+  campaign_name,
+  campaign_type,
+  campaign_url,
+  NULL AS subcampaign_name, -- Added in 0.2.0
+  app_id,
+  campaign_network_id,
+  country,
+  reporting_date,
+  impressions,
+  clicks,
+  installs,
+  cost,
+  revenue,
+  last_modified
+  FROM huskimo.singular_campaigns_010;
 
 -- Set permissions
 GRANT USAGE ON SCHEMA huskimo TO huskimo;

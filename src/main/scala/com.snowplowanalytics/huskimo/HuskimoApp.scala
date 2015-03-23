@@ -40,15 +40,11 @@ import Scalaz._
 import org.clapper.argot._
 
 // This project
-import tasks.{
-  FileTasks,
-  RedshiftTasks
-}
-import channels.singular.{ApiClient => SingularApiClient}
 import utils.{
   ConversionUtils,
   DateTimeFormatters
 }
+import channels.singular.Singular
 
 /**
  * Main entry point of the Huskimo app.
@@ -85,8 +81,8 @@ object HuskimoApp extends App {
     case (None, _)               => parser.usage("--config option must be provided")
     case (Some(Failure(err)), _) => parser.usage(err)
     case (_, Some(Failure(err))) => parser.usage(err)
-    case (Some(Success(conf)), None)              => fetchCampaigns(conf, ConversionUtils.now())
-    case (Some(Success(conf)), Some(Success(dt))) => fetchCampaigns(conf, dt)
+    case (Some(Success(conf)), None)              => Singular.fetch(conf, ConversionUtils.now())
+    case (Some(Success(conf)), Some(Success(dt))) => Singular.fetch(conf, dt)
   }
 }
 
@@ -128,42 +124,5 @@ object Huskimo {
     }
   }
 
-  /**
-   * Run the campaign fetch process.
-   *
-   * @param config The Config for the HuskimoApp
-   * @param endDate The last day to retrieve
-   *        campaign statistics for
-   */
-  def fetchCampaigns(config: AppConfig.Config, endDate: DateTime) {
-    
-    // 1. Setup
-    // TODO: initialize for each database
-    val s3Client = FileTasks.initializeS3Client(config.s3.access_key_id, config.s3.secret_access_key)
-    FileTasks.deleteFromS3(s3Client, config.s3.bucket, config.s3.folder_path)
 
-    // 2. Pagination
-    // TODO: this should be in parallel
-    for ((chn, idx) <- config.channels.zipWithIndex) {
-      // Loop through all days
-      for (daysAgo <- 0 to config.fetch.lookback) {
-        val lookupDate = endDate.minusDays(daysAgo)
-        SingularApiClient.getCampaignStatistics(chn, lookupDate) match {
-          case Success(events) => {
-            val filename = FileTasks.getTemporaryFile(idx, lookupDate)
-            FileTasks.writeCampaignStatistics(filename, events, chn.name, ConversionUtils.now())
-            FileTasks.uploadToS3(s3Client, config.s3.bucket, config.s3.folder_path, filename)
-          }
-          case Failure(err) => throw new Exception("Error fetching campaigns from Singular (${chn.name}): ${err}") // TODO: send event to Snowplow & non-0 system exit
-        }
-      }
-
-      // TODO: this should be in parallel
-      for (tgt <- config.targets) {
-        RedshiftTasks.initializeConnection(tgt)
-        RedshiftTasks.loadCampaigns(config.s3, tgt.table)
-      }
-    }
-    SingularApiClient.shutdown()
-  }
 }

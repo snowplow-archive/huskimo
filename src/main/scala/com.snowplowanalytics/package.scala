@@ -22,8 +22,16 @@ import Scalaz._
 // This project
 import huskimo.AppConfig
 import huskimo.channels.singular.CampaignStatistics
+import huskimo.channels.Tsvable
 
 package object huskimo {
+
+  /**
+   * Alias for a Validation containing either
+   * a Failure String or a Success-boxed
+   * T.
+   */
+  type Validated[T] = Validation[String, T]
 
   /**
    * Alias for a Validation containing either
@@ -45,11 +53,4 @@ package object huskimo {
    * Joda DateTime.
    */
   type ValidatedDateTime = Validation[String, DateTime]
-
-  /**
-   * Alias for a Validation containing either
-   * a Failure String or a List (possibly empty)
-   * of CampaignStatistics on Success.
-   */
-  type ValidatedCampaignStatistics = Validation[String, List[CampaignStatistics]]
 }
