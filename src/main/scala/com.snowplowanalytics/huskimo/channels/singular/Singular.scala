@@ -96,7 +96,7 @@ object Singular {
       // TODO: this should be in parallel
       for (tgt <- config.targets) {
         RedshiftTasks.initializeConnection(tgt)
-        // RedshiftTasks.loadTable(config.s3, Resources.campaigns.filePrefix, Resources.campaigns.tableName)
+        RedshiftTasks.loadTable(config.s3, Resources.campaigns.filePrefix, Resources.campaigns.tableName)
         RedshiftTasks.loadTable(config.s3, Resources.creatives.filePrefix, Resources.creatives.tableName)
       }
     }
