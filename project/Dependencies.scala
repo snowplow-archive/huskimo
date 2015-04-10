@@ -31,6 +31,7 @@ object Dependencies {
     val yodaTime         = "2.1"
     val aws              = "1.8.9.1"
     val commonsCodec     = "1.5"
+    val twilio           = "3.7.1"
     // Scala
     val argot            = "1.0.1"
     val scalaz7          = "7.0.0"
@@ -50,6 +51,7 @@ object Dependencies {
     val aws              = "com.amazonaws"              %  "aws-java-sdk"              % V.aws
     val yodaTime         = "joda-time"                  %  "joda-time"                 % V.yodaTime
     val commonsCodec     = "commons-codec"              %  "commons-codec"             % V.commonsCodec
+    val twilio           = "com.twilio.sdk"             %  "twilio-java-sdk"           % V.twilio
     // Scala
     val argot            = "org.clapper"                %% "argot"                     % V.argot
     val scalaz7          = "org.scalaz"                 %% "scalaz-core"               % V.scalaz7

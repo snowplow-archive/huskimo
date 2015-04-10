@@ -105,9 +105,25 @@ object FileTasks {
    * 
    * @return the temporary file
    */
-  def getTemporaryFile(channelIndex: Int, resource: String, date: DateTime): File = {
-    val dt = DTF.YyyyMmDdCompact.print(date)
-    val temp = File.createTempFile(s"${resource}-${channelIndex}-${dt}-", TempFile.suffix)
+  def getTemporaryFile(channelIndex: Int, resource: String, label: DateTime): File = {
+    val dt = DTF.YyyyMmDdCompact.print(label)
+    getTemporaryFile(channelIndex, resource, dt)
+  }
+
+  /**
+   * Generate the temporary file path to hold
+   * our TSV-format campaign data.
+   *
+   * @param channelIndex To prevent clashes
+   *        between separate marketing channels
+   * @param resource What type of resource are
+   *        we storing in our file
+   * @param label A label for our filename
+   *
+   * @return the temporary file
+   */
+  def getTemporaryFile(channelIndex: Int, resource: String, label: String): File = {
+    val temp = File.createTempFile(s"${resource}-${channelIndex}-${label}-", TempFile.suffix)
     System.out.println(s"Temporary file is ${temp}")
     temp.deleteOnExit
     temp.getCanonicalFile

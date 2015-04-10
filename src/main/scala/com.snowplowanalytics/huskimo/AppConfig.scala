@@ -34,6 +34,7 @@ object AppConfig {
   class Channel {
     @BeanProperty var name:    String = _
     @BeanProperty var `type`:  String = _
+    @BeanProperty var api_user: String = _
     @BeanProperty var api_key: String = _
   }
 

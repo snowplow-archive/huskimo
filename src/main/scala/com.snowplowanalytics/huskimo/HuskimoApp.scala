@@ -45,6 +45,7 @@ import utils.{
   DateTimeFormatters
 }
 import channels.singular.Singular
+import channels.twilio.Twilio
 
 /**
  * Main entry point of the Huskimo app.
@@ -81,8 +82,8 @@ object HuskimoApp extends App {
     case (None, _)               => parser.usage("--config option must be provided")
     case (Some(Failure(err)), _) => parser.usage(err)
     case (_, Some(Failure(err))) => parser.usage(err)
-    case (Some(Success(conf)), None)              => Singular.fetch(conf, ConversionUtils.now())
-    case (Some(Success(conf)), Some(Success(dt))) => Singular.fetch(conf, dt)
+    case (Some(Success(conf)), None)              => fetchAll(conf, ConversionUtils.now())
+    case (Some(Success(conf)), Some(Success(dt))) => fetchAll(conf, dt)
   }
 }
 
@@ -124,5 +125,16 @@ object Huskimo {
     }
   }
 
+  /**
+   * Fetch from all supported vendors.
+   *
+   * @param config The Config for the HuskimoApp
+   * @param endDate The last day to retrieve
+   *        campaign statistics for
+   */
+  def fetchAll(config: AppConfig.Config, endDate: DateTime) {
+    Singular.fetch(config, endDate)
+    Twilio.fetch(config, endDate)
+  }
 
 }
