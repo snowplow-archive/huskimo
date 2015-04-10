@@ -36,6 +36,7 @@ object HuskimoBuild extends Build {
         Libraries.yodaTime,
         Libraries.aws,
         Libraries.commonsCodec,
+        Libraries.twilio,
         // Scala
         Libraries.argot,
         Libraries.scalaz7,

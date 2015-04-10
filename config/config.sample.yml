@@ -2,8 +2,13 @@ fetch:
   lookback: 30 # Number of days back in time from the start date to fetch for
 channels:
   - name: ADD HERE
-    type: singular # Only Singular supported currently
+    type: singular
+    api_user: # Leave blank for Singular
     api_key: ADD HERE
+  - name: ADD HERE
+    type: twilio
+    api_user: ADD HERE # Twilio account sid
+    api_key: ADD HERE # Twilio auth token
 s3:
   access_key_id: ADD HERE
   secret_access_key: ADD HERE
