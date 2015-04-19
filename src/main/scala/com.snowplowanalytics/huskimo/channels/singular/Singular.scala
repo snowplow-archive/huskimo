@@ -84,7 +84,8 @@ object Singular {
 
     // 2. Pagination
     // TODO: this should be in parallel
-    for ((chn, idx) <- config.channels.zipWithIndex) {
+    val singularChannels = config.channels.filter(_.`type` == "singular")
+    for ((chn, idx) <- singularChannels.zipWithIndex) {
       // Loop through all days
       for (daysAgo <- 0 to config.fetch.lookback) {
         val lookupDate = endDate.minusDays(daysAgo)
