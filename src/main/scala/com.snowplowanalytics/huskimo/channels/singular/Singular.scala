@@ -63,7 +63,7 @@ object Singular {
         FileTasks.writeFile(filename, records, channel.name, ConversionUtils.now())
         FileTasks.uploadToS3(s3, config.s3.bucket, config.s3.folder_path, filename)
       }
-      case Failure(err) => throw new Exception("Error fetching campaigns from Singular (${channel.name}): ${err}") // TODO: send event to Snowplow & non-0 system exit
+      case Failure(err) => throw new Exception(s"Error fetching campaigns from Singular (${channel.name}): ${err}") // TODO: send event to Snowplow & non-0 system exit
     } 
   }
 
