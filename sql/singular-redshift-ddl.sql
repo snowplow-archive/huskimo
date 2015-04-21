@@ -16,12 +16,6 @@
 -- Copyright:   Copyright (c) 2015 Snowplow Analytics Ltd
 -- License:     Apache License Version 2.0
 
- -- Create the schema
-CREATE SCHEMA huskimo;
-
--- Create huskimo user
-CREATE USER huskimo PASSWORD 'xxx';
-
 -- Create table for Singular campaigns
 CREATE TABLE huskimo.singular_campaigns (
   channel_name        varchar(512) not null encode runlength,
@@ -76,6 +70,5 @@ DISTKEY (ad_network)
 SORTKEY (reporting_date, when_retrieved);
 
 -- Set permissions
-GRANT USAGE ON SCHEMA huskimo TO huskimo;
 GRANT INSERT ON TABLE "huskimo"."singular_campaigns" TO huskimo;
 GRANT INSERT ON TABLE "huskimo"."singular_creatives" TO huskimo;
