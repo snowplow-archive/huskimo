@@ -30,10 +30,12 @@ import au.com.bytecode.opencsv.CSVWriter
 // AWS
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest
+import com.amazonaws.services.s3.model.ObjectListing
 
 // Scala
 import scala.collection.JavaConversions._
+import scala.annotation.tailrec
 
 // Scalaz
 import scalaz._
@@ -73,12 +75,21 @@ object FileTasks {
    *
    * @param s3Client Our S3 client from the AWS SDK
    * @param bucket The bucket to delete from
-   * @param folderPath The path to delete from
+   * @param target Either the folder path to start
+   *        deleting from, or the next ObjectListing
+   *        to delete
    */
-  def deleteFromS3(s3Client: AmazonS3Client, bucket: String, folderPath: String) {
-    val objcts = s3Client.listObjects(bucket, folderPath)
-    for (file <- objcts.getObjectSummaries) {
+  @tailrec
+  def deleteFromS3(s3Client: AmazonS3Client, bucket: String, target: Either[String, ObjectListing]) {
+    val listing = target match {
+      case Left(folderPath) => s3Client.listObjects(bucket, folderPath)
+      case Right(nextBatch) => nextBatch
+    }
+    for (file <- listing.getObjectSummaries) {
       s3Client.deleteObject(bucket, file.getKey)
+    }
+    if (listing.isTruncated) {
+      deleteFromS3(s3Client, bucket, Right(s3Client.listNextBatchOfObjects(listing)))
     }
   }
 

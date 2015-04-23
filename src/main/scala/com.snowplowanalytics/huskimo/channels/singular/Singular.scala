@@ -80,7 +80,7 @@ object Singular {
     // 1. Setup
     // TODO: initialize for each database
     implicit val s3Client = FileTasks.initializeS3Client(config.s3.access_key_id, config.s3.secret_access_key)
-    FileTasks.deleteFromS3(s3Client, config.s3.bucket, config.s3.folder_path)
+    FileTasks.deleteFromS3(s3Client, config.s3.bucket, Left(config.s3.folder_path))
 
     // 2. Pagination
     // TODO: this should be in parallel
