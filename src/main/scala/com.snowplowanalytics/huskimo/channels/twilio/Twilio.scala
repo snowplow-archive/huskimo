@@ -61,7 +61,7 @@ import utils.{
 
 object Twilio {
 
-  private val PageSize = 50000
+  private val PageSize = 1000
 
   private val TwilioTimeZone = DateTimeZone.UTC
 
@@ -97,7 +97,7 @@ object Twilio {
 
     def writeToS3[A <: InstanceResource[TwilioRestClient]](iterable: JIterable[A]) {
 
-      val iterator = iterable.asScala.toStream.sliding(PageSize)
+      val iterator = iterable.asScala.toStream.sliding(PageSize, PageSize)
       for ((page, index) <- iterator.zipWithIndex) {
         val tsvablePage = page.toList.map(Tsvable.convert(_))
         val filename = FileTasks.getTemporaryFile(channelIndex, resource.name, index.toString)
