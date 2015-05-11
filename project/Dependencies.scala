@@ -31,7 +31,7 @@ object Dependencies {
     val yodaTime         = "2.1"
     val aws              = "1.8.9.1"
     val commonsCodec     = "1.5"
-    val twilio           = "3.7.1"
+    val twilio           = "4.2.0"
     // Scala
     val argot            = "1.0.1"
     val scalaz7          = "7.0.0"

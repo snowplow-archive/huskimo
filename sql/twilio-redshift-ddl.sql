@@ -22,7 +22,7 @@ CREATE TABLE huskimo.twilio_calls (
   when_retrieved       timestamp    not null encode runlength ,
   sid                  varchar(34)  not null encode raw       ,
   account_sid          varchar(34)  not null encode runlength ,
-  api_version          varchar(128)          encode text255   , -- Can be null, https://github.com/twilio/twilio-java/issues/197
+  api_version          varchar(128) not null  encode text255  ,
   date_created         timestamp    not null                  ,
   date_updated         timestamp    not null                  ,
   parent_call_sid      varchar(34)                            ,
@@ -62,6 +62,7 @@ CREATE TABLE huskimo.twilio_incoming_phone_numbers (
   voice_fallback_method  varchar(4)            encode bytedict  ,
   status_callback        varchar(8012)         encode raw       ,
   status_fallback_method varchar(4)            encode bytedict  ,
+  voice_caller_id_lookup boolean               encode runlength ,
   sms_url                varchar(8012)         encode raw       ,
   sms_method             varchar(512)          encode raw       ,
   sms_fallback_url       varchar(8012)         encode raw       ,

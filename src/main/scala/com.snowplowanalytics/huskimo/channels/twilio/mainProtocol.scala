@@ -68,7 +68,7 @@ case class TsvableCall(call: Call) extends Tsvable {
       CU.dateTimeToRedshift(whenRetrieved),
       call.getSid,
       call.getAccountSid,
-      null, // https://github.com/twilio/twilio-java/issues/197
+      call.getApiVersion,
       CU.dateToRedshift(call.getDateCreated),
       CU.dateToRedshift(call.getDateUpdated),
       call.getParentCallSid,
@@ -119,6 +119,7 @@ case class TsvableIncomingPhoneNumber(number: IncomingPhoneNumber) extends Tsvab
       number.getVoiceFallbackMethod,
       number.getStatusCallback,
       number.getStatusCallbackMethod,
+      CU.tsvify(number.getVoiceCallerIdLookup),
       number.getSmsUrl,
       number.getSmsMethod,
       number.getSmsFallbackUrl,
