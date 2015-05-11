@@ -45,7 +45,7 @@ CREATE TABLE huskimo.singular_creatives (
   channel_name        varchar(512) not null encode runlength,
   when_retrieved      timestamp not null encode runlength,
   ad_network          varchar(512) not null encode text32k,
-  creative_name       varchar(512) not null encode text32k,
+  creative_name       varchar(512) encode text32k,
   creative_text       varchar(512) encode text32k,
   image               varchar(8192) not null encode text32k,
   image_hash          varchar(512) not null encode text32k,
