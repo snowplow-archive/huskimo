@@ -32,8 +32,12 @@ object RedshiftTasks {
    */
   def initializeConnection(config: AppConfig.Target) {
     Class.forName(RedshiftDriver)
-    ConnectionPool.singleton(s"jdbc:postgresql://${config.host}:${config.port}/${config.database}",
-      config.username, config.password)
+    var url = s"jdbc:postgresql://${config.host}:${config.port}/${config.database}"
+    if (config.ssl == true) {
+      url += "?ssl=true"
+      url += "&sslfactory=" + Option(config.sslfactory).getOrElse("org.postgresql.ssl.NonValidatingFactory")
+    }
+    ConnectionPool.singleton(url, config.username, config.password)
   }
 
   /**

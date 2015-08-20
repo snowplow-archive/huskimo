@@ -16,6 +16,8 @@ targets:
     host: ADD HERE # The endpoint as shown in the Redshift console
     database: ADD HERE # Name of database
     port: 5439 # Default Redshift port
+    ssl: false # SSL disabled by default
+    sslfactory: org.postgresql.ssl.NonValidatingFactory # Disable SSL certificate validation by default
     table: ADD HERE # TODO: move this out
     username: ADD HERE
     password: ADD HERE
