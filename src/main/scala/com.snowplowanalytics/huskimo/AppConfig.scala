@@ -47,14 +47,16 @@ object AppConfig {
   }
 
   class Target {
-    @BeanProperty var name:     String = _
-    @BeanProperty var `type`:   String = _
-    @BeanProperty var host:     String = _
-    @BeanProperty var database: String = _
-    @BeanProperty var port:     Int = _
-    @BeanProperty var table:    String = _
-    @BeanProperty var username: String = _
-    @BeanProperty var password: String = _
+    @BeanProperty var name:        String = _
+    @BeanProperty var `type`:      String = _
+    @BeanProperty var host:        String = _
+    @BeanProperty var database:    String = _
+    @BeanProperty var port:        Int = _
+    @BeanProperty var ssl:         Boolean = _
+    @BeanProperty var ssl_factory: String = _
+    @BeanProperty var table:       String = _
+    @BeanProperty var username:    String = _
+    @BeanProperty var password:    String = _
   }
 
   class Config {
