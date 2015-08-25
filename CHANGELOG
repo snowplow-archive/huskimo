@@ -1,3 +1,15 @@
+Version 0.3.0 (2015-08-28)
+--------------------------
+Common: updated vagrant up to work with latest Peru version (#13)
+Common: added SSL support for Redshift (#21)
+Common: fixed deleteFromS3 to delete all files, not just first 1000 (#18)
+Twilio: added Twilio support (#12)
+Singular: now allowing null for creative_name in singular_creatives (#19)
+Singular: fixed macros in fetchAndWrite's Exception (#16)
+Singular: split redshift-ddl.sql into common-redshift-ddl.sql and singular-redshift-ddl.sql (#15)
+Singular: now only fetches channels of type `singular` (#14)
+Singular: fixed issue where Akka prevents clean exit on Exception (#1)
+
 Version 0.2.0 (2015-03-23)
 --------------------------
 Added support for Singular creative stats (#5)
