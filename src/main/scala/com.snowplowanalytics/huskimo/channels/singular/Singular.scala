@@ -63,7 +63,7 @@ object Singular {
         FileTasks.writeFile(filename, records, channel.name, ConversionUtils.now())
         FileTasks.uploadToS3(s3, config.s3.bucket, config.s3.folder_path, filename)
       }
-      case Failure(err) => throw new Exception("Error fetching campaigns from Singular (${channel.name}): ${err}") // TODO: send event to Snowplow & non-0 system exit
+      case Failure(err) => throw new Exception(s"Error fetching campaigns from Singular (${channel.name}): ${err}") // TODO: send event to Snowplow & non-0 system exit
     } 
   }
 
@@ -80,11 +80,12 @@ object Singular {
     // 1. Setup
     // TODO: initialize for each database
     implicit val s3Client = FileTasks.initializeS3Client(config.s3.access_key_id, config.s3.secret_access_key)
-    FileTasks.deleteFromS3(s3Client, config.s3.bucket, config.s3.folder_path)
+    FileTasks.deleteFromS3(s3Client, config.s3.bucket, Left(config.s3.folder_path))
 
     // 2. Pagination
     // TODO: this should be in parallel
-    for ((chn, idx) <- config.channels.zipWithIndex) {
+    val singularChannels = config.channels.filter(_.`type` == "singular")
+    for ((chn, idx) <- singularChannels.zipWithIndex) {
       // Loop through all days
       for (daysAgo <- 0 to config.fetch.lookback) {
         val lookupDate = endDate.minusDays(daysAgo)

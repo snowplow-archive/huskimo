@@ -13,6 +13,9 @@
 package com.snowplowanalytics.huskimo
 package utils
 
+// Java
+import java.util.Date
+
 // Joda-Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
@@ -84,6 +87,12 @@ object ConversionUtils {
     } yield r
     if (f == Some("")) None else f
   }
+
+  /**
+   * Converts a date to Redshift format.
+   */
+  def dateToRedshift(dt: Date): String =
+    dateTimeToRedshift(new DateTime(dt))
 
   /**
    * Converts a dateTime to Redshift format.
