@@ -2,8 +2,13 @@ fetch:
   lookback: 30 # Number of days back in time from the start date to fetch for
 channels:
   - name: ADD HERE
-    type: singular # Only Singular supported currently
+    type: singular
+    api_user: # Leave blank for Singular
     api_key: ADD HERE
+  - name: ADD HERE
+    type: twilio
+    api_user: ADD HERE # Twilio account sid
+    api_key: ADD HERE # Twilio auth token
 s3:
   access_key_id: ADD HERE
   secret_access_key: ADD HERE
@@ -16,6 +21,8 @@ targets:
     host: ADD HERE # The endpoint as shown in the Redshift console
     database: ADD HERE # Name of database
     port: 5439 # Default Redshift port
+    ssl: false # SSL disabled by default
+    ssl_factory: org.postgresql.ssl.NonValidatingFactory # Disable SSL certificate validation by default
     table: ADD HERE # TODO: move this out
     username: ADD HERE
     password: ADD HERE
