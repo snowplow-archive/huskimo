@@ -59,6 +59,9 @@ import spray.can.Http
 import spray.can.Http.HostConnectorSetup
 import spray.io.ClientSSLEngineProvider
 
+// Config
+import com.typesafe.config.ConfigFactory
+
 // This project
 import utils.{
   ConversionUtils,
@@ -83,7 +86,8 @@ object ApiClient {
   private val Encoding = "UTF-8"
 
   // We need an ActorSystem to host our application in
-  implicit val system = ActorSystem(generated.ProjectSettings.name)
+  implicit val system = ActorSystem(generated.ProjectSettings.name,
+    ConfigFactory.parseString("akka.daemonic=on"))
   import system.dispatcher // execution context for futures
   import system.log // for logging
 
