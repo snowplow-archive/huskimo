@@ -12,16 +12,13 @@
  */
 package com.snowplowanalytics.huskimo
 package channels
-package singular
+package twilio
 
 // Java
 import java.security.cert.X509Certificate
 import javax.net.ssl.KeyManager
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
-
-// Joda-Time
-import org.joda.time.DateTime
 
 // Apache Commons
 import org.apache.commons.codec.binary.Base64
@@ -51,6 +48,7 @@ import org.json4s.native.JsonMethods._
 
 // Spray
 import spray.http._
+import spray.http.HttpHeaders.Authorization
 import spray.httpx.{UnsuccessfulResponseException => UrUnsuccessfulResponseException}
 import spray.httpx.unmarshalling.FromResponseUnmarshaller
 import spray.util._
@@ -67,7 +65,7 @@ import utils.{
   ConversionUtils,
   DateTimeFormatters
 }
-import ApiProtocol._
+import PricingApiProtocol._
 
 object UnsuccessfulResponseException {
   def unapply(a: UrUnsuccessfulResponseException): Option[HttpResponse]
@@ -75,13 +73,14 @@ object UnsuccessfulResponseException {
 }
 
 /**
- * Contains the Singular API-related tasks required
- * for loading the campaign statistics.
+ * Contains a client for accessing Twilio's new
+ * pricing API.
  */
-object ApiClient {
+object PricingApiClient {
 
-  private val SingularApiHost = "api.singular.net"
-  private val SingularApiPort = 443
+  private val TwilioApiHost = "pricing.twilio.com"
+  private val TwilioApiPort = 443
+  private val TwilioApiVersion = "v1"
 
   private val Encoding = "UTF-8"
 
@@ -122,31 +121,28 @@ object ApiClient {
   implicit val timeout = Timeout(longTimeout)
 
   /**
-   * Fetch a page of campaign statistics from the Singular API.
+   * Fetch a page of campaign statistics from the Twilio API.
    *
-   * @param apiKey The API key for Singular
-   * @param resourceSlug The slug of the resource
-   *        to request from Singular
-   * @param endDate The last day to retrieve
-   *        campaign statistics for
+   * @param apiUser The API user for Twilio
+   * @param apiKey The API key for Twilio
+   * @param isoCountry The ISO code for the country.
+   *        If not set, return list of countries
    * @return a Validation containing either a Failure
-   *         String or a List (possibly empty) of
-   *         CampaignStatistics on Success.
+   *         String or a T on Success
    */
-  def getStatistics[T: FromResponseUnmarshaller](apiKey: String, resourceSlug: String, date: DateTime): Validated[T] = {
+  def getPhoneNumbers[T: FromResponseUnmarshaller](apiUser: String, apiKey: String, isoCountry: Option[String]): Validated[T] = {
 
-    log.info(s"Fetching ${resourceSlug} data")
-
-    val path = buildRequestPath(apiKey, resourceSlug, date)
+    val path = buildRequestPath(isoCountry)
 
     val connectedSendReceive = for {
     Http.HostConnectorInfo(connector, _) <-
-    IO(Http) ? Http.HostConnectorSetup(SingularApiHost, SingularApiPort, sslEncryption = true) //(sslEngineProvider)
+    IO(Http) ? Http.HostConnectorSetup(TwilioApiHost, TwilioApiPort, sslEncryption = true) //(sslEngineProvider)
     } yield sendReceive(connector)
 
     val pipeline = for (sendRecv <- connectedSendReceive) yield
-      addHeader("Accept", "application/json") ~>
-      sendRecv                                ~>
+      addHeader("Accept", "application/json")                         ~>
+      addHeader(Authorization(BasicHttpCredentials(apiUser, apiKey))) ~>
+      sendRecv                                                        ~>
       unmarshal[T]
 
     val req = Get(path)
@@ -171,16 +167,16 @@ object ApiClient {
   /**
    * Builds our API request path.
    *
-   * @param apiKey The API key for Singular
-   * @param resourceSlug The slug of the resource
-   *        to request from Singular
-   * @param date The date to retrieve campaign
-   *        data for
+   * @param isoCountry The ISO code for the country.
+   *        If not set, return list of countries
    * @return our API request path
    */
-  private[singular] def buildRequestPath(apiKey: String, resourceSlug: String, date: DateTime): String = {
-    val dt = DateTimeFormatters.YyyyMmDd.print(date)
-    s"/api/${apiKey}/adv/${resourceSlug}/${dt}/${dt}"
+  private[twilio] def buildRequestPath(isoCountry: Option[String]): String = {
+    val root = s"/${TwilioApiVersion}/PhoneNumbers/Countries"
+    isoCountry match {
+      case Some(ic) => s"${root}/${ic}?PageSize=200"
+      case None     => s"${root}?PageSize=200"
+    }
   }
 
   /**
@@ -191,12 +187,12 @@ object ApiClient {
    * @return a Validation boxing either an empty List
    *         on Success or a Failure String
    */
-  private[singular] def parseFailure[T: FromResponseUnmarshaller](response: HttpResponse): Validated[T] = {
+  private[twilio] def parseFailure[T: FromResponseUnmarshaller](response: HttpResponse): Validated[T] = {
     
     try {
       val json = parse(response.entity.asString)
       val err = json.extract[ErrorResult]
-      s"API failure with message: ${err.error}".fail
+      s"API failure with message: ${err.message}".fail
     } catch {
       case _: Throwable =>
         (s"Error trying to recover from failure for response with Status: ${response.status}\n" +

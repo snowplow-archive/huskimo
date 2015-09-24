@@ -49,7 +49,7 @@ limitations under the License.
 [travis]: https://travis-ci.org/snowplow/huskimo
 [travis-image]: https://travis-ci.org/snowplow/huskimo.png?branch=master
 
-[release-image]: http://img.shields.io/badge/release-0.2.0-blue.svg?style=flat
+[release-image]: http://img.shields.io/badge/release-0.3.1-blue.svg?style=flat
 [releases]: https://github.com/snowplow/huskimo/releases
 
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat

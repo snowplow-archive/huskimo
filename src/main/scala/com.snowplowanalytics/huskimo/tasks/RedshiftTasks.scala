@@ -13,6 +13,16 @@
 package com.snowplowanalytics.huskimo
 package tasks
 
+// Java
+import java.sql.Timestamp
+
+// Joda-Time
+import org.joda.time.DateTime
+
+// Scalaz
+import scalaz._
+import Scalaz._
+
 // ScalikeJDBC
 import scalikejdbc._
 
@@ -32,8 +42,26 @@ object RedshiftTasks {
    */
   def initializeConnection(config: AppConfig.Target) {
     Class.forName(RedshiftDriver)
-    ConnectionPool.singleton(s"jdbc:postgresql://${config.host}:${config.port}/${config.database}",
-      config.username, config.password)
+    var url = s"jdbc:postgresql://${config.host}:${config.port}/${config.database}"
+    if (config.ssl == true) {
+      url += "?ssl=true"
+      url += "&sslfactory=" + Option(config.ssl_factory).getOrElse("org.postgresql.ssl.NonValidatingFactory")
+    }
+    ConnectionPool.singleton(url, config.username, config.password)
+  }
+
+  /**
+   * Delete everything from a table. Avoids truncate so not
+   * limited to owners / super users.
+   * @param tableName The name of the table (optionally starting
+   *        with schema) to truncate
+   */
+  def emptyTable(table: String) {
+    DB autoCommit { implicit session =>
+      SQL(s"DELETE FROM ${table};")
+        .execute
+        .apply()
+    }
   }
 
   /**
@@ -43,26 +71,47 @@ object RedshiftTasks {
    * @param config The configuration for Amazon S3
    * @param resource What type of resource are
    *        we storing in our file
-   * @param tableName The name of the table (optionally starting
+   * @param table The name of the table (optionally starting
    *        with schema) containing the data to load
    */
-  def loadTable(config: AppConfig.S3, resource: String, tableName: String) {
+  def loadTable(config: AppConfig.S3, resource: String, table: String) {
     
     val path = buildS3Path(config.bucket, resource, config.folder_path)
     val creds = buildCredentialsString(config.access_key_id, config.secret_access_key)
 
     DB autoCommit { implicit session =>
-      SQL(s"""|COPY ${tableName} FROM '${path}' 
-          |CREDENTIALS AS '${creds}' 
-          |GZIP 
-          |DELIMITER AS '${AppConfig.FieldDelimiter.AsString}' 
-          |MAXERROR AS 1 
-          |REGION AS '${config.region}' 
-          |EMPTYASNULL 
+      SQL(s"""|COPY ${table} FROM '${path}'
+          |CREDENTIALS AS '${creds}'
+          |GZIP
+          |DELIMITER AS '${AppConfig.FieldDelimiter.AsString}'
+          |MAXERROR AS 1
+          |REGION AS '${config.region}'
+          |EMPTYASNULL
           |ACCEPTINVCHARS;""".stripMargin.replaceAll("[\n\r]", " "))
         .execute
         .apply()
     }
+  }
+
+  /**
+   * Get the most recent timestamp stored in a table.
+   *
+   * @param table Table name (optionally starting
+   *        with schema) containing the timestamp
+   * @param column Name of column containing the
+   *        timestamp
+   * @return either Some boxing the newest timestamp found
+   *         in the table, or None if the table is empty
+   *         (or timestamp column contains only nulls)
+   */
+  def getMaxTimestamp(table: String, column: String): Option[DateTime] = {
+    val ts: Option[Timestamp] = DB readOnly { implicit session =>
+      SQL(s"""SELECT MAX(${column}) AS "max" FROM ${table}""")
+        .map(rs => rs.timestamp("max"))
+        .single
+        .apply()
+      }
+    for (t <- ts) yield new DateTime(t)
   }
 
   /**
