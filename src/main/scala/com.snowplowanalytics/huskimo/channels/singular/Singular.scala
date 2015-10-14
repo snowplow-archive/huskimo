@@ -40,7 +40,7 @@ object Singular {
   private case class Resource(apiSlug: String, filePrefix: String, tableName: String)
 
   private object Resources {
-    private val tablePrefix = "huskimo.singular_"
+    private val tablePrefix = "singular_"
     val campaigns = Resource("stats", "campaigns", s"${tablePrefix}campaigns")
     val creatives = Resource("creative_stats", "creatives", s"${tablePrefix}creatives")
   }
@@ -67,7 +67,7 @@ object Singular {
     } 
   }
 
-	/**
+  /**
    * Run the fetch process for all Singular resources
    * that we care about.
    *

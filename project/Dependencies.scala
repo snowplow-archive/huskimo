@@ -26,7 +26,7 @@ object Dependencies {
   object V {
     // Java
     val snakeyaml        = "1.14"
-    val postgres         = "8.4-702.jdbc4"
+    val postgres         = "9.4-1204-jdbc4"
     val opencsv          = "2.3"
     val yodaTime         = "2.1"
     val aws              = "1.8.9.1"
@@ -46,7 +46,7 @@ object Dependencies {
   object Libraries {
     // Java
     val snakeyaml        = "org.yaml"                   %  "snakeyaml"                 % V.snakeyaml
-    val postgres         = "postgresql"                 %  "postgresql"                % V.postgres
+    val postgres         = "org.postgresql"             %  "postgresql"                % V.postgres
     val opencsv          = "net.sf.opencsv"             %  "opencsv"                   % V.opencsv
     val aws              = "com.amazonaws"              %  "aws-java-sdk"              % V.aws
     val yodaTime         = "joda-time"                  %  "joda-time"                 % V.yodaTime

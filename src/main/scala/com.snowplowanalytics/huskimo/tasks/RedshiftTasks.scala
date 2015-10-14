@@ -42,9 +42,10 @@ object RedshiftTasks {
    */
   def initializeConnection(config: AppConfig.Target) {
     Class.forName(RedshiftDriver)
-    var url = s"jdbc:postgresql://${config.host}:${config.port}/${config.database}"
+    val schema = Option(config.schema).getOrElse("huskimo")
+    var url = s"jdbc:postgresql://${config.host}:${config.port}/${config.database}?currentSchema=${schema}"
     if (config.ssl == true) {
-      url += "?ssl=true"
+      url += "&ssl=true"
       url += "&sslfactory=" + Option(config.ssl_factory).getOrElse("org.postgresql.ssl.NonValidatingFactory")
     }
     ConnectionPool.singleton(url, config.username, config.password)
@@ -53,8 +54,7 @@ object RedshiftTasks {
   /**
    * Delete everything from a table. Avoids truncate so not
    * limited to owners / super users.
-   * @param tableName The name of the table (optionally starting
-   *        with schema) to truncate
+   * @param table The name of the table to be truncated
    */
   def emptyTable(table: String) {
     DB autoCommit { implicit session =>
@@ -71,8 +71,7 @@ object RedshiftTasks {
    * @param config The configuration for Amazon S3
    * @param resource What type of resource are
    *        we storing in our file
-   * @param table The name of the table (optionally starting
-   *        with schema) containing the data to load
+   * @param table The name of the table containing the data to load
    */
   def loadTable(config: AppConfig.S3, resource: String, table: String) {
     
@@ -96,10 +95,8 @@ object RedshiftTasks {
   /**
    * Get the most recent timestamp stored in a table.
    *
-   * @param table Table name (optionally starting
-   *        with schema) containing the timestamp
-   * @param column Name of column containing the
-   *        timestamp
+   * @param table Table name containing the timestamp
+   * @param column Name of column containing the timestamp
    * @return either Some boxing the newest timestamp found
    *         in the table, or None if the table is empty
    *         (or timestamp column contains only nulls)
