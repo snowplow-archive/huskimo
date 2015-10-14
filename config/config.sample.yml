@@ -23,6 +23,6 @@ targets:
     port: 5439 # Default Redshift port
     ssl: false # SSL disabled by default
     ssl_factory: org.postgresql.ssl.NonValidatingFactory # Disable SSL certificate validation by default
-    table: ADD HERE # TODO: move this out
+    schema: huskimo
     username: ADD HERE
     password: ADD HERE

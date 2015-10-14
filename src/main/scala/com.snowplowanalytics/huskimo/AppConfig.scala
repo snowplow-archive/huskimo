@@ -54,7 +54,7 @@ object AppConfig {
     @BeanProperty var port:        Int = _
     @BeanProperty var ssl:         Boolean = _
     @BeanProperty var ssl_factory: String = _
-    @BeanProperty var table:       String = _
+    @BeanProperty var schema:      String = _
     @BeanProperty var username:    String = _
     @BeanProperty var password:    String = _
   }

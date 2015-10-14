@@ -69,7 +69,7 @@ object Twilio {
 
     // TODO: we could back calculate dateColumn from dateProperty
     sealed abstract class Resource(val name: String, val dateProperty: Option[String], val dateColumn: Option[String]) {
-      val tableName = s"huskimo.twilio_${name}"
+      val tableName = s"twilio_${name}"
     }
 
     case object Calls extends Resource("calls", "StartTime".some, "start_time".some)
@@ -178,8 +178,7 @@ object Twilio {
    * from: the last date found in Redshift + 1 day
    * to: yesterday
    *
-   * @param table Table name (optionally starting
-   *        with schema) containing the timestamp
+   * @param table Table name containing the timestamp
    * @param column Name of column containing the
    *        timestamp
    */
