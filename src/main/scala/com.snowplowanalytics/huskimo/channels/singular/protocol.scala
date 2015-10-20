@@ -60,7 +60,7 @@ case class CampaignStatistics(
   subcampaign_name:    String,
   app_id:              String,
   campaign_network_id: Option[String],
-  country:             String,
+  country:             Option[String],
   date:                String, // Will be converted before loading into Redshift
   impressions:         Option[Integer],
   clicks:              Option[Integer],

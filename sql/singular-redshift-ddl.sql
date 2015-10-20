@@ -28,14 +28,13 @@ CREATE TABLE huskimo.singular_campaigns (
   app_id              VARCHAR(512)          ENCODE LZO,
   campaign_network_id VARCHAR(512)          ENCODE LZO, -- Always empty
   country             VARCHAR(2)            ENCODE LZO,
-  reporting_date      TIMESTAMP NOT NULL    ENCODE LZO, -- Renamed from date$
+  reporting_date      TIMESTAMP    NOT NULL ENCODE LZO, -- Renamed from date$
   impressions         BIGINT                ENCODE LZO,
   clicks              BIGINT                ENCODE LZO,
   installs            BIGINT                ENCODE LZO,
   cost                DECIMAL(10, 2)        ENCODE LZO,
   revenue             DECIMAL(10, 2)        ENCODE LZO,
-  last_modified       TIMESTAMP NOT NULL    ENCODE LZO
-)
+  last_modified       TIMESTAMP    NOT NULL ENCODE LZO)
 DISTSTYLE KEY
 DISTKEY (ad_network)
 SORTKEY (reporting_date, when_retrieved);
@@ -58,15 +57,14 @@ CREATE TABLE huskimo.singular_creatives (
   campaign_type       VARCHAR(512)  NOT NULL ENCODE LZO,
   campaign_url        VARCHAR(8192)          ENCODE LZO,
   subcampaign_name    VARCHAR(512)           ENCODE LZO,
-  app_id              VARCHAR(512)           ENCODE LZO,
+  app_id              VARCHAR(512)  NOT NULL ENCODE LZO,
   campaign_network_id VARCHAR(512)           ENCODE LZO,
   reporting_date      TIMESTAMP     NOT NULL ENCODE LZO, -- Renamed from date$
   impressions         BIGINT                 ENCODE LZO,
   clicks              BIGINT                 ENCODE LZO,
   installs            BIGINT                 ENCODE LZO,
   cost                DECIMAL(10, 2)         ENCODE LZO,
-  modified_at         TIMESTAMP NOT NULL     ENCODE LZO
-)
+  modified_at         TIMESTAMP     NOT NULL ENCODE LZO)
 DISTSTYLE KEY
 DISTKEY (ad_network)
 SORTKEY (reporting_date, when_retrieved);
